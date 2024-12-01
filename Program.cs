@@ -100,6 +100,7 @@ namespace SensorDataLogger
                 try
                 {
                     var context = services.GetRequiredService<SensorDbContext>();
+
                     context.Database.Migrate();
                 }
                 catch (Exception ex)

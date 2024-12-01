@@ -3,6 +3,34 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Entity Framework Migrations folder
+Migrations/
+
+# Exclude machine-specific settings in Properties
+Properties/launchSettings.json
+
+# Exclude sensitive appsettings for development
+appsettings.Development.json
+
+# Keep .gitignore and .gitattributes
+!.gitignore
+!.gitattributes
+
+# Ignore build directories
+bin/
+obj/
+
+# Ignore IDE-specific files
+.vs/
+.idea/
+.vscode/
+
+# Ignore system files
+.DS_Store
+
+# Ignore log files
+*.log
+
 # User-specific files
 *.rsuser
 *.suo

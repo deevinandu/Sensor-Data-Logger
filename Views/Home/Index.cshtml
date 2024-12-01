@@ -1,0 +1,109 @@
+﻿@{
+    ViewData["Title"] = "Sensor Dashboard";
+}
+
+<div class="container">
+    <h2>Real-Time Sensor Monitoring</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Temperature</div>
+                <div class="card-body">
+                    <canvas id="temperatureChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">GSR</div>
+                <div class="card-body">
+                    <canvas id="gsrChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/signalr/signalr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // SignalR Connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/sensorHub")
+            .build();
+
+        // Chart configurations
+        const tempCtx = document.getElementById('temperatureChart').getContext('2d');
+        const tempChart = new Chart(tempCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Temperature (°C)',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+        const gsrCtx = document.getElementById('gsrChart').getContext('2d');
+        const gsrChart = new Chart(gsrCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'GSR Value',
+                    data: [],
+                    borderColor: 'rgb(255, 99, 132)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+        // Update chart function
+        function updateChart(chart, value) {
+            const now = new Date().toLocaleTimeString();
+
+            chart.data.labels.push(now);
+            chart.data.datasets[0].data.push(value);
+
+            // Keep only last 20 points
+            if (chart.data.labels.length > 20) {
+                chart.data.labels.shift();
+                chart.data.datasets[0].data.shift();
+            }
+
+            chart.update();
+        }
+
+        // SignalR event handler
+        connection.on("ReceiveSensorReading", (data) => {
+            updateChart(tempChart, data.temperature);
+            updateChart(gsrChart, data.gsrValue);
+        });
+
+        // Start connection
+        connection.start()
+            .then(() => console.log("SignalR Connected"))
+            .catch(err => console.error(err));
+    </script>
+}
